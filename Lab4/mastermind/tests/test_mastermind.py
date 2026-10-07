@@ -12,7 +12,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from game import (DIFFICULTIES, EASY, HARD, LOST, MEDIUM, PLAYING, QUIT, WON,
                   Difficulty, GameOver, Mastermind, choose_difficulty)
-from logic import feedback
+from logic import InvalidGuess, feedback, validate_guess
 
 
 def fb(code, guess):
@@ -298,6 +298,175 @@ class DifficultyTests(unittest.TestCase):
         out = run_menu(["q"])[1]
         for level in DIFFICULTIES:
             self.assertTrue(any(level.name in line and level.describe() in line for line in out))
+
+
+MALFORMED = [
+    ("", "empty"), ("   ", "blank"), ("123", "too short"), ("12345", "too long"),
+    ("12a4", "letter"), ("abcd", "all letters"), ("1204", "zero"), ("1274", "above range"),
+    ("12 3", "inner space"), ("1,23", "comma"), ("-123", "sign"), ("1.23", "decimal"),
+    ("12\t3", "tab"), ("１２３４", "full-width digits"), ("١٢٣٤", "Arabic-Indic digits"),
+    ("1234\n", "newline"),
+]
+
+
+class ValidationTests(unittest.TestCase):
+    """Task 4: malformed guesses are rejected and never touch the game state."""
+
+    def make(self, max_turns=10):
+        return Mastermind(Difficulty("test", 4, 6, max_turns), code=list("1234"))
+
+    def snapshot(self, game):
+        return (game.state, game.turns, list(game.history))
+
+    def test_validate_guess_accepts_well_formed_guesses(self):
+        self.assertEqual(validate_guess("1234", 4, "123456"), list("1234"))
+        self.assertEqual(validate_guess("6666", 4, "123456"), list("6666"))
+        self.assertEqual(validate_guess("88888", 5, "12345678"), list("88888"))
+
+    def test_validate_guess_rejects_malformed_guesses(self):
+        for raw, why in MALFORMED:
+            with self.subTest(why):
+                with self.assertRaises(InvalidGuess):
+                    validate_guess(raw, 4, "123456")
+
+    def test_error_messages_say_what_is_wrong(self):
+        for raw, expected in [("", "Enter a guess"), ("123", "exactly 4 digits - you entered 3"),
+                              ("12a4", "'a'"), ("1274", "'7'")]:
+            with self.subTest(raw=raw):
+                with self.assertRaises(InvalidGuess) as caught:
+                    validate_guess(raw, 4, "123456")
+                self.assertIn(expected, str(caught.exception))
+
+    def test_submit_rejects_malformed_guess_without_changing_state(self):
+        for raw, why in MALFORMED:
+            with self.subTest(why):
+                game = self.make()
+                game.submit("1111")
+                before = self.snapshot(game)
+                with self.assertRaises(InvalidGuess):
+                    game.submit(raw)
+                self.assertEqual(self.snapshot(game), before)
+
+    def test_invalid_input_in_run_spends_no_turn_and_prints_no_feedback(self):
+        game = self.make()
+        # run() trims input first, so a trailing newline is not malformed there.
+        inputs = [raw for raw, why in MALFORMED if why != "newline"]
+        out, unread = play(game, inputs + ["q"])
+        self.assertEqual(unread, [])
+        self.assertEqual((game.state, game.turns, game.history), (QUIT, 10, []))
+        self.assertFalse([line for line in out if "Exact" in line])
+        self.assertEqual(sum(line.startswith("A guess needs") or line.startswith("Only digits")
+                             or line.startswith("Enter a guess") for line in out), len(inputs))
+
+    def test_prompt_turn_counter_does_not_move_on_invalid_input(self):
+        game = self.make()
+        out, _ = play(game, ["12", "abcd", "", "q"])
+        prompts = [line for line in out if line.endswith("turns left > ")]
+        self.assertEqual(prompts, ["10 turns left > "] * 4)
+
+    def test_valid_guess_is_recorded_and_counted_exactly_once(self):
+        game = self.make()
+        play(game, ["1111", "q"])
+        self.assertEqual(game.history, [("1111", 1, 0)])
+        self.assertEqual(game.turns, 9)
+
+    def test_each_accepted_guess_produces_exactly_one_new_history_row(self):
+        game = self.make()
+        out, _ = play(game, ["1111", "oops", "2222", "12", "3333", "q"])
+        tables = [i for i, line in enumerate(out) if line.lstrip().startswith("#")]
+        self.assertEqual(len(tables), 3)                      # one table per accepted guess
+        self.assertEqual(len(game.history), 3)
+        self.assertEqual(game.turns, 7)
+
+    def test_invalid_input_before_winning_guess(self):
+        game = self.make()
+        play(game, ["12", "9999", "", "1234"])
+        self.assertEqual(game.state, WON)
+        self.assertEqual(game.history, [("1234", 4, 0)])
+        self.assertEqual(game.turns, 9)
+
+    def test_invalid_input_on_final_turn_does_not_end_the_game(self):
+        game = self.make(max_turns=1)
+        play(game, ["bad", "99", "1234"])
+        self.assertEqual((game.state, game.turns), (WON, 0))
+        game = self.make(max_turns=1)
+        out, _ = play(game, ["bad", "1111"])
+        self.assertEqual((game.state, game.turns), (LOST, 0))
+
+    def test_game_over_takes_precedence_over_validation(self):
+        game = self.make()
+        play(game, ["1234"])
+        before = self.snapshot(game)
+        for raw in ("9999", "", "1111"):
+            with self.assertRaises(GameOver):
+                game.submit(raw)
+        self.assertEqual(self.snapshot(game), before)
+
+    def test_input_is_trimmed_but_not_otherwise_altered(self):
+        game = self.make()
+        play(game, ["  1111  ", "q"])
+        self.assertEqual(game.history, [("1111", 1, 0)])
+
+    def test_quit_words(self):
+        for word in ("q", "Q", "quit", "QUIT", " q "):
+            with self.subTest(word=word):
+                game = self.make()
+                play(game, ["1111", word])
+                self.assertEqual((game.state, game.turns, len(game.history)), (QUIT, 9, 1))
+
+    def test_end_of_input_and_ctrl_c_quit_cleanly(self):
+        for error in (EOFError, KeyboardInterrupt):
+            with self.subTest(error=error.__name__):
+                game, out = self.make(), []
+                feed = iter(["1111"])
+
+                def read(prompt):
+                    try:
+                        return next(feed)
+                    except StopIteration:
+                        raise error
+
+                game.run(read=read, write=out.append)
+                self.assertEqual((game.state, game.turns, len(game.history)), (QUIT, 9, 1))
+
+    def test_menu_end_of_input_returns_none(self):
+        def read(prompt):
+            raise EOFError
+
+        self.assertIsNone(choose_difficulty(read=read, write=lambda line: None))
+
+    def test_history_table_is_readable(self):
+        game = self.make()
+        game.submit("3144")
+        game.submit("1243")
+        game.submit("1234")
+        self.assertEqual(game.history_lines(), [
+            "  #  Guess    Exact  Partial",
+            "  1  3 1 4 4      1        2",
+            "  2  1 2 4 3      2        2",
+            "  3  1 2 3 4      4        0",
+        ])
+
+    def test_history_table_is_empty_before_first_guess_and_scales_with_length(self):
+        game = self.make()
+        self.assertEqual(game.history_lines(), ["  #  Guess    Exact  Partial"])
+        hard = Mastermind(HARD, code=list("12345"))
+        hard.submit("54321")
+        header, row = hard.history_lines()
+        self.assertEqual(len(header), len(row))
+        self.assertIn("5 4 3 2 1", row)
+
+    def test_validation_follows_each_difficulty(self):
+        for level in DIFFICULTIES:
+            game = Mastermind(level)
+            with self.subTest(level=level.name):
+                for raw in ("", "1" * (level.length - 1), "1" * (level.length + 1),
+                            "1" * (level.length - 1) + str(level.symbols + 1)):
+                    with self.assertRaises(InvalidGuess):
+                        game.submit(raw)
+                self.assertEqual((game.turns, game.history), (level.max_turns, []))
+                game.submit(level.alphabet[-1] * level.length)
+                self.assertEqual((game.turns, len(game.history)), (level.max_turns - 1, 1))
 
 
 if __name__ == "__main__":

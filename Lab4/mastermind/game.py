@@ -1,8 +1,13 @@
 import random
 from dataclasses import dataclass
-from logic import feedback
+from logic import InvalidGuess, feedback, validate_guess
 
 PLAYING, WON, LOST, QUIT = "playing", "won", "lost", "quit"
+QUIT_WORDS = ("q", "quit")
+
+
+class GameOver(Exception):
+    """Raised when a guess is submitted after the game has already ended."""
 
 
 @dataclass(frozen=True)
@@ -32,17 +37,17 @@ def choose_difficulty(read=input, write=print):
     for number, level in enumerate(DIFFICULTIES, 1):
         write(f"  {number}) {level.name:<6} - {level.describe()}")
     while True:
-        choice = read("Difficulty (number or name, q to quit) > ").strip().lower()
-        if choice == "q":
+        try:
+            choice = read("Difficulty (number or name, q to quit) > ").strip().lower()
+        except (EOFError, KeyboardInterrupt):
+            write("")
+            return None
+        if choice in QUIT_WORDS:
             return None
         for number, level in enumerate(DIFFICULTIES, 1):
             if choice in (str(number), level.name):
                 return level
         write(f"Please choose 1-{len(DIFFICULTIES)} or a difficulty name.")
-
-
-class GameOver(Exception):
-    """Raised when a guess is submitted after the game has already ended."""
 
 
 class Mastermind:
@@ -61,12 +66,15 @@ class Mastermind:
     def submit(self, guess):
         """Score one accepted guess and advance the game; return (exact, partial).
 
-        Raises GameOver, leaving all state untouched, once the game has ended.
+        `guess` is a string (or sequence) of symbols. Raises GameOver once the
+        game has ended and InvalidGuess for a malformed guess; in both cases all
+        state is left untouched, so no turn is spent and no feedback is produced.
         """
         if self.finished:
             raise GameOver(f"The game is already over ({self.state}).")
-        exact, partial = feedback(self.code, guess)
-        self.history.append(("".join(guess), exact, partial))
+        symbols = validate_guess("".join(guess), self.difficulty.length, self.difficulty.alphabet)
+        exact, partial = feedback(self.code, symbols)
+        self.history.append(("".join(symbols), exact, partial))
         self.turns -= 1
         if exact == len(self.code):
             self.state = WON
@@ -78,19 +86,34 @@ class Mastermind:
         if not self.finished:
             self.state = QUIT
 
+    def history_lines(self):
+        """The guess history as a table, one row per accepted guess."""
+        width = max(5, 2 * self.difficulty.length - 1)
+        lines = [f"{'#':>3}  {'Guess':<{width}}  {'Exact':>5}  {'Partial':>7}"]
+        for number, (guess, exact, partial) in enumerate(self.history, 1):
+            lines.append(f"{number:>3}  {' '.join(guess):<{width}}  {exact:>5}  {partial:>7}")
+        return lines
+
     def run(self, read=input, write=print):
         level = self.difficulty
-        write(f"Mastermind ({level.name}) — enter {level.length} digits from 1 to {level.symbols}.")
+        write(f"Mastermind ({level.name}) — enter {level.length} digits "
+              f"from 1 to {level.symbols}, or q to quit.")
         while not self.finished:
-            raw = read(f"{self.turns} turns left > ").strip()
-            if raw.lower() == "q":
+            try:
+                raw = read(f"{self.turns} turns left > ").strip()
+            except (EOFError, KeyboardInterrupt):
+                write("")
+                raw = "q"
+            if raw.lower() in QUIT_WORDS:
                 self.quit()
                 break
-            if len(raw) != level.length or any(ch not in level.alphabet for ch in raw):
-                write(f"Enter exactly {level.length} digits from 1 to {level.symbols}.")
+            try:
+                self.submit(raw)
+            except InvalidGuess as problem:
+                write(str(problem))
                 continue
-            exact, partial = self.submit(list(raw))
-            write(f"Exact: {exact}  Partial: {partial}")
+            for line in self.history_lines():
+                write(line)
         self.announce_result(write)
 
     def announce_result(self, write=print):

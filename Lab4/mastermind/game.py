@@ -1,7 +1,44 @@
 import random
+from dataclasses import dataclass
 from logic import feedback
 
 PLAYING, WON, LOST, QUIT = "playing", "won", "lost", "quit"
+
+
+@dataclass(frozen=True)
+class Difficulty:
+    name: str
+    length: int      # positions in the secret code
+    symbols: int     # code symbols are the digits 1..symbols
+    max_turns: int   # guesses allowed
+
+    @property
+    def alphabet(self):
+        return "".join(str(n) for n in range(1, self.symbols + 1))
+
+    def describe(self):
+        return f"{self.length} digits from 1-{self.symbols}, {self.max_turns} guesses"
+
+
+EASY = Difficulty("easy", 3, 4, 12)
+MEDIUM = Difficulty("medium", 4, 6, 10)   # the original game
+HARD = Difficulty("hard", 5, 8, 8)
+DIFFICULTIES = (EASY, MEDIUM, HARD)
+
+
+def choose_difficulty(read=input, write=print):
+    """Ask for a difficulty by number or name; return None if the player quits."""
+    write("Choose a difficulty:")
+    for number, level in enumerate(DIFFICULTIES, 1):
+        write(f"  {number}) {level.name:<6} - {level.describe()}")
+    while True:
+        choice = read("Difficulty (number or name, q to quit) > ").strip().lower()
+        if choice == "q":
+            return None
+        for number, level in enumerate(DIFFICULTIES, 1):
+            if choice in (str(number), level.name):
+                return level
+        write(f"Please choose 1-{len(DIFFICULTIES)} or a difficulty name.")
 
 
 class GameOver(Exception):
@@ -9,10 +46,12 @@ class GameOver(Exception):
 
 
 class Mastermind:
-    def __init__(self, code=None, max_turns=10):
-        self.code = code or [str(random.randint(1, 6)) for _ in range(4)]
+    def __init__(self, difficulty=MEDIUM, code=None):
+        self.difficulty = difficulty
+        self.code = code or [str(random.randint(1, difficulty.symbols))
+                             for _ in range(difficulty.length)]
         self.history = []
-        self.turns = max_turns
+        self.turns = difficulty.max_turns
         self.state = PLAYING
 
     @property
@@ -40,14 +79,15 @@ class Mastermind:
             self.state = QUIT
 
     def run(self, read=input, write=print):
-        write("Mastermind — enter four digits from 1 to 6.")
+        level = self.difficulty
+        write(f"Mastermind ({level.name}) — enter {level.length} digits from 1 to {level.symbols}.")
         while not self.finished:
             raw = read(f"{self.turns} turns left > ").strip()
             if raw.lower() == "q":
                 self.quit()
                 break
-            if len(raw) != 4 or any(ch not in "123456" for ch in raw):
-                write("Enter exactly four digits from 1 to 6.")
+            if len(raw) != level.length or any(ch not in level.alphabet for ch in raw):
+                write(f"Enter exactly {level.length} digits from 1 to {level.symbols}.")
                 continue
             exact, partial = self.submit(list(raw))
             write(f"Exact: {exact}  Partial: {partial}")

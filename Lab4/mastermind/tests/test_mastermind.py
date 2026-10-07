@@ -4,12 +4,14 @@
 """
 import itertools
 import os
+import random
 import sys
 import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from game import GameOver, LOST, Mastermind, PLAYING, QUIT, WON
+from game import (DIFFICULTIES, EASY, HARD, LOST, MEDIUM, PLAYING, QUIT, WON,
+                  Difficulty, GameOver, Mastermind, choose_difficulty)
 from logic import feedback
 
 
@@ -96,7 +98,8 @@ class LifecycleTests(unittest.TestCase):
     """Task 2: win / loss / quit handling, history, guess limit, frozen state."""
 
     def make(self, max_turns=10):
-        return Mastermind(code=list("1234"), max_turns=max_turns)
+        level = Difficulty("test", 4, 6, max_turns)
+        return Mastermind(level, code=list("1234"))
 
     def snapshot(self, game):
         return (game.state, game.turns, list(game.history))
@@ -182,6 +185,119 @@ class LifecycleTests(unittest.TestCase):
         game = self.make(max_turns=3)
         play(game, ["1111", "4321", "1243"])
         self.assertEqual(game.history, [("1111", 1, 0), ("4321", 0, 4), ("1243", 2, 2)])
+
+
+def run_menu(inputs):
+    queue, out = list(inputs), []
+    level = choose_difficulty(read=lambda prompt: queue.pop(0), write=out.append)
+    return level, out
+
+
+class DifficultyTests(unittest.TestCase):
+    """Task 3: difficulty modes vary length, symbol range and guess limit."""
+
+    def test_modes_differ_in_every_setting(self):
+        for attr in ("length", "symbols", "max_turns"):
+            values = [getattr(level, attr) for level in DIFFICULTIES]
+            self.assertEqual(len(set(values)), len(values), attr)
+
+    def test_medium_is_the_original_game(self):
+        self.assertEqual((MEDIUM.length, MEDIUM.symbols, MEDIUM.max_turns), (4, 6, 10))
+
+    def test_default_game_is_medium(self):
+        self.assertIs(Mastermind().difficulty, MEDIUM)
+
+    def test_generated_codes_are_valid_for_every_mode(self):
+        for level in DIFFICULTIES:
+            for seed in range(200):
+                random.seed(seed)
+                game = Mastermind(level)
+                with self.subTest(level=level.name, seed=seed):
+                    self.assertEqual(len(game.code), level.length)
+                    self.assertTrue(all(c in level.alphabet for c in game.code))
+                    self.assertEqual(game.turns, level.max_turns)
+
+    def test_codes_can_contain_repeated_symbols(self):
+        for level in DIFFICULTIES:
+            repeated = False
+            for seed in range(200):
+                random.seed(seed)
+                code = Mastermind(level).code
+                repeated = repeated or len(set(code)) < len(code)
+            self.assertTrue(repeated, level.name)
+
+    def test_seed_zero_still_gives_the_original_code(self):
+        random.seed(0)
+        self.assertEqual("".join(Mastermind(MEDIUM).code), "4413")
+
+    def test_guess_validation_follows_the_mode(self):
+        cases = [
+            (EASY, "123", True), (EASY, "1234", False), (EASY, "12", False), (EASY, "125", False),
+            (MEDIUM, "1236", True), (MEDIUM, "123", False), (MEDIUM, "12345", False), (MEDIUM, "1237", False),
+            (HARD, "12348", True), (HARD, "1234", False), (HARD, "123456", False), (HARD, "12349", False),
+        ]
+        for level, guess, valid in cases:
+            with self.subTest(level=level.name, guess=guess):
+                game = Mastermind(level, code=list("1" * level.length))
+                play(game, [guess, "q"])
+                self.assertEqual(len(game.history), 1 if valid else 0)
+
+    def test_guess_limit_matches_the_mode(self):
+        for level in DIFFICULTIES:
+            with self.subTest(level=level.name):
+                wrong = "2" * level.length
+                game = Mastermind(level, code=list("1" * level.length))
+                for _ in range(level.max_turns - 1):
+                    game.submit(list(wrong))
+                self.assertEqual(game.state, PLAYING)
+                game.submit(list(wrong))
+                self.assertEqual((game.state, game.turns), (LOST, 0))
+                self.assertEqual(len(game.history), level.max_turns)
+
+    def test_win_and_loss_in_every_mode(self):
+        for level in DIFFICULTIES:
+            code = list(level.alphabet[: level.length])
+            wrong = "".join(reversed(code)) if level.length > 1 else "9"
+            with self.subTest(level=level.name, outcome="win-on-last-turn"):
+                game = Mastermind(level, code=code)
+                play(game, [wrong] * (level.max_turns - 1) + ["".join(code)])
+                self.assertEqual((game.state, game.turns), (WON, 0))
+            with self.subTest(level=level.name, outcome="loss"):
+                game = Mastermind(level, code=code)
+                play(game, [wrong] * level.max_turns)
+                self.assertEqual((game.state, game.turns), (LOST, 0))
+
+    def test_duplicate_aware_feedback_in_every_mode(self):
+        cases = [
+            (EASY, "113", "111", (2, 0)),
+            (EASY, "121", "211", (1, 2)),
+            (MEDIUM, "4413", "4444", (2, 0)),
+            (MEDIUM, "1122", "2211", (0, 4)),
+            (HARD, "11223", "12121", (2, 2)),
+            (HARD, "88123", "18812", (1, 3)),
+            (HARD, "88123", "88888", (2, 0)),
+        ]
+        for level, code, guess, expected in cases:
+            with self.subTest(level=level.name, code=code, guess=guess):
+                game = Mastermind(level, code=list(code))
+                self.assertEqual(game.submit(list(guess)), expected)
+
+    def test_menu_accepts_number_or_name(self):
+        for choice, expected in [("1", EASY), ("2", MEDIUM), ("3", HARD),
+                                 ("easy", EASY), (" Medium ", MEDIUM), ("HARD", HARD)]:
+            with self.subTest(choice=choice):
+                self.assertIs(run_menu([choice])[0], expected)
+
+    def test_menu_reprompts_on_bad_choice_and_can_quit(self):
+        level, out = run_menu(["", "9", "extreme", "3"])
+        self.assertIs(level, HARD)
+        self.assertEqual(sum("Please choose" in line for line in out), 3)
+        self.assertIsNone(run_menu(["q"])[0])
+
+    def test_menu_lists_every_mode(self):
+        out = run_menu(["q"])[1]
+        for level in DIFFICULTIES:
+            self.assertTrue(any(level.name in line and level.describe() in line for line in out))
 
 
 if __name__ == "__main__":

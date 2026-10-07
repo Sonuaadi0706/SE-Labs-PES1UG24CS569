@@ -1,0 +1,24 @@
+Lab 4 - Mastermind: LLM chat link
+=================================
+
+Assistant used : Claude (Claude Code desktop app), model claude-sonnet-5-5
+Session title  : Lab 4 Mastermind implementation
+Session id     : local_804df02a-218d-4259-970a-fa0ebdf64c7a
+Session link   : claude://claude.ai/epitaxy/local_804df02a-218d-4259-970a-fa0ebdf64c7a
+
+What this link is
+-----------------
+This lab was done in a local Claude Code desktop session. The session has no public
+"share" page, so the only link the app provides is the deep link above. It opens the session
+only inside the Claude desktop app on the account/computer that ran it - it is NOT a public
+web URL. No public share link was generated or invented.
+
+Complete chat history
+---------------------
+The full conversation is provided as LLM_Chat_History.pdf in this folder. It was generated
+from the session's own transcript export (Claude Code "Export" -> transcript.jsonl) and
+contains the lab prompt, Claude's replies, and every tool call (commands run, files written)
+with its output, in order. Rendering notes: screenshots appear as placeholders, the
+assistant's internal reasoning blocks are not rendered, and harness-injected system reminders
+(account metadata) were removed. The final packaging/push steps happen after the export was
+taken, so they are not in the PDF.

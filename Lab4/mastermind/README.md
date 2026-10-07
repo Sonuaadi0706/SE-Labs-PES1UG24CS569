@@ -88,3 +88,50 @@ Submission is only the following three things:
 - [ ] A 10-second video of gameplay **before** your changes, showing the bug/broken behavior
 - [ ] A 10-second video of gameplay **after** your changes, showing the bug fixed and the new features working
 - [ ] The Chat/LLM used page link, with the complete chat history
+
+---
+
+## Lab 4 implementation notes
+
+Everything above is the original assignment text, kept unchanged. This section describes what
+was added for Lab 4.
+
+### How to play
+
+```bash
+python3 main.py
+```
+
+Pick a difficulty (by number or name), then enter guesses made of digits. `q` (or `quit`) ends
+the game. After every accepted guess the full history is shown:
+
+```text
+  #  Guess    Exact  Partial
+  1  4 4 4 4      2        0
+  2  3 4 1 4      2        2
+```
+
+| Difficulty | Code length | Symbols | Guesses |
+|---|---|---|---|
+| easy   | 3 | 1–4 | 12 |
+| medium (original game) | 4 | 1–6 | 10 |
+| hard   | 5 | 1–8 | 8 |
+
+### What changed
+
+- `logic.py` — `feedback()` is duplicate-aware: exact matches are resolved first, then only the
+  unmatched positions are paired by symbol, so each code position counts at most once.
+  `validate_guess()` / `InvalidGuess` reject malformed guesses with a specific message.
+- `game.py` — `Difficulty` configuration and start-up menu; an explicit game state
+  (`playing` / `won` / `lost` / `quit`); `Mastermind.submit()` validates, scores and records exactly
+  one guess and raises `GameOver` (changing nothing) once the game has ended; history table.
+- `main.py` — asks for a difficulty, then runs the game.
+- `tests/test_mastermind.py` — standard-library `unittest` suite.
+
+### Running the tests
+
+```bash
+python3 -m unittest discover -s tests -v
+```
+
+State is kept in memory only; there are no third-party dependencies and nothing is written to disk.

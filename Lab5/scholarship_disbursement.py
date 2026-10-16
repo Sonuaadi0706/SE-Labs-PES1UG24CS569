@@ -21,7 +21,8 @@ def grant(student, scheme, amount, audit=None):
     if audit is None:
         audit = []
     conn.execute(
-        "INSERT INTO awards (student, scheme, amount, disbursed) VALUES (?, ?, ?, 0)",
+        "INSERT INTO awards (student, scheme, amount, disbursed) "
+        "VALUES (?, ?, ?, 0)",
         (student, scheme, amount),
     )
     audit.append(student)
@@ -58,7 +59,9 @@ def by_scheme_count(scheme):
     """Return how many awards were granted under the given scheme."""
     if scheme is None:
         return 0
-    return conn.execute("SELECT COUNT(*) FROM awards WHERE scheme = ?", (scheme,)).fetchone()[0]
+    return conn.execute(
+        "SELECT COUNT(*) FROM awards WHERE scheme = ?", (scheme,)
+    ).fetchone()[0]
 
 
 def main():

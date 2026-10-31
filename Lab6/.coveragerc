@@ -1,0 +1,3 @@
+# Report coverage of the application module only (not of the test files themselves).
+[report]
+include = */food_delivery.py

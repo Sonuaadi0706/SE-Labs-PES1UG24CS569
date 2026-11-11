@@ -13,6 +13,7 @@ Each lab lives in its own top-level folder with its own deliverables and README.
 | Lab 4 | VibeCoding: Mastermind — reproduced and fixed the duplicate-symbol feedback bug in an assigned game and added lifecycle handling, difficulty modes and input/history hardening, one commit per task; includes before/after videos and the LLM chat history | [`Lab4/`](Lab4/) |
 | Lab 5 | Static Code Analysis — fixed the Pylint, Bandit and Flake8 findings in an assigned scholarship-ledger script (Pylint 5.00 → 10.00, Bandit 4 → 0, Flake8 6 → 0), including a SQL-injection fix, with an issue table, before/after reports and written reflection | [`Lab5/`](Lab5/) |
 | Lab 6 | Code and Branch Coverage Analysis — wrote pytest suites for an assigned food-delivery module, taking line coverage 36 % → 100 % and branch coverage 30 % → 100 % (24/24 branches), with terminal screenshots and a mutation check showing why boundary tests matter | [`Lab6/`](Lab6/) |
+| Lab 7 | Fuzzing for Input Validation Bugs — wrote Hypothesis property-based fuzz tests for an assigned food-delivery module (8 of 11 fail on the original: crashes in all three functions plus negative quantities, ETAs and discounts), then hardened the code so all 11 pass; includes a PDF report with terminal screenshots and before/after pytest logs | [`Lab7/`](Lab7/) |
 
 See each lab's folder for its own README with the full problem statement, approach, and a
 description of every deliverable inside it.

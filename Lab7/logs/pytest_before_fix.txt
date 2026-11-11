@@ -1,0 +1,407 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.15.0, pytest-9.2.0, pluggy-1.7.0
+rootdir: /Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7
+plugins: hypothesis-6.170.15
+collected 11 items
+
+test_food_delivery.py FF.FFFF.FF.                                        [100%]
+
+=================================== FAILURES ===================================
+__________________________ test_parse_order_no_crash ___________________________
+  + Exception Group Traceback (most recent call last):
+  |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 59, in test_parse_order_no_crash
+  |     @given(st.text() | st.none())
+  |                    ^^^
+  | ExceptionGroup: Hypothesis found 3 distinct failures. (3 sub-exceptions)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 62, in test_parse_order_no_crash
+    |     parse_order(s)
+    |     ~~~~~~~~~~~^^^
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/food_delivery.py", line 5, in parse_order
+    |     order[name.strip()] = int(qty)
+    |                           ~~~^^^^^
+    | ValueError: invalid literal for int() with base 10: ''
+    | 
+    | During handling of the above exception, another exception occurred:
+    | 
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 64, in test_parse_order_no_crash
+    |     assert False, f"parse_order crashed with: {e!r}"
+    | AssertionError: parse_order crashed with: ValueError("invalid literal for int() with base 10: ''")
+    | assert False
+    | Failing test case: test_parse_order_no_crash(
+    |     s=':',
+    | )
+    +---------------- 2 ----------------
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 62, in test_parse_order_no_crash
+    |     parse_order(s)
+    |     ~~~~~~~~~~~^^^
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/food_delivery.py", line 4, in parse_order
+    |     name, qty = item.split(':')
+    |     ^^^^^^^^^
+    | ValueError: not enough values to unpack (expected 2, got 1)
+    | 
+    | During handling of the above exception, another exception occurred:
+    | 
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 64, in test_parse_order_no_crash
+    |     assert False, f"parse_order crashed with: {e!r}"
+    | AssertionError: parse_order crashed with: ValueError('not enough values to unpack (expected 2, got 1)')
+    | assert False
+    | Failing test case: test_parse_order_no_crash(
+    |     s='',
+    | )
+    +---------------- 3 ----------------
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 62, in test_parse_order_no_crash
+    |     parse_order(s)
+    |     ~~~~~~~~~~~^^^
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/food_delivery.py", line 3, in parse_order
+    |     for item in items_csv.split(','):
+    |                 ^^^^^^^^^^^^^^^
+    | AttributeError: 'NoneType' object has no attribute 'split'
+    | 
+    | During handling of the above exception, another exception occurred:
+    | 
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 64, in test_parse_order_no_crash
+    |     assert False, f"parse_order crashed with: {e!r}"
+    | AssertionError: parse_order crashed with: AttributeError("'NoneType' object has no attribute 'split'")
+    | assert False
+    | Failing test case: test_parse_order_no_crash(
+    |     s=None,
+    | )
+    +------------------------------------
+_____________________ test_parse_order_returns_valid_order _____________________
+  + Exception Group Traceback (most recent call last):
+  |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 68, in test_parse_order_returns_valid_order
+  |     @given(junk | order_like)
+  |                    ^^^
+  |   File "/Users/aadi/Desktop/SE lab 7/.venv/lib/python3.15/site-packages/hypothesis/core.py", line 1730, in _raise_to_user
+  |     raise the_error_hypothesis_found
+  | ExceptionGroup: Hypothesis found 3 distinct failures in explicit examples. (3 sub-exceptions)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 75, in test_parse_order_returns_valid_order
+    |     order = parse_order(s)
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/food_delivery.py", line 5, in parse_order
+    |     order[name.strip()] = int(qty)
+    |                           ~~~^^^^^
+    | ValueError: invalid literal for int() with base 10: 'two'
+    | 
+    | During handling of the above exception, another exception occurred:
+    | 
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 77, in test_parse_order_returns_valid_order
+    |     assert False, f"parse_order crashed with: {e!r}"
+    | AssertionError: parse_order crashed with: ValueError("invalid literal for int() with base 10: 'two'")
+    | assert False
+    | (note: 1 other explicit example also failed with this error; use Verbosity.verbose to view)
+    | Failing explicit example: test_parse_order_returns_valid_order(
+    |     s='pizza:two',
+    | )
+    +---------------- 2 ----------------
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 75, in test_parse_order_returns_valid_order
+    |     order = parse_order(s)
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/food_delivery.py", line 4, in parse_order
+    |     name, qty = item.split(':')
+    |     ^^^^^^^^^
+    | ValueError: not enough values to unpack (expected 2, got 1)
+    | 
+    | During handling of the above exception, another exception occurred:
+    | 
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 77, in test_parse_order_returns_valid_order
+    |     assert False, f"parse_order crashed with: {e!r}"
+    | AssertionError: parse_order crashed with: ValueError('not enough values to unpack (expected 2, got 1)')
+    | assert False
+    | Failing explicit example: test_parse_order_returns_valid_order(
+    |     s='pizza:2,,burger:1',
+    | )
+    +---------------- 3 ----------------
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 81, in test_parse_order_returns_valid_order
+    |     assert type(qty) is int and 1 <= qty <= MAX_QTY, f"bad quantity {qty!r}"
+    | AssertionError: bad quantity -3
+    | assert (<class 'int'> is int and 1 <= -3)
+    |  +  where <class 'int'> = type(-3)
+    | Failing explicit example: test_parse_order_returns_valid_order(
+    |     s='pizza:-3',
+    | )
+    +------------------------------------
+___________________ test_parse_order_merges_duplicate_items ____________________
+
+    @FUZZ
+>   @given(item_names.map(str.strip), st.integers(1, 40), st.integers(1, 40))
+                   ^^^
+
+test_food_delivery.py:97: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'A', q1 = 1, q2 = 1
+
+    @FUZZ
+    @given(item_names.map(str.strip), st.integers(1, 40), st.integers(1, 40))
+    def test_parse_order_merges_duplicate_items(name, q1, q2):
+>       assert parse_order(f"{name}:{q1},{name}:{q2}") == {name: q1 + q2}
+E       AssertionError: assert {'A': 1} == {'A': 2}
+E         
+E         Differing items:
+E         {'A': 1} != {'A': 2}
+E         Use -v to get more diff
+E       Failing test case: test_parse_order_merges_duplicate_items(
+E           name='A',
+E           q1=1,
+E           q2=1,
+E       )
+
+test_food_delivery.py:99: AssertionError
+__________________________ test_delivery_eta_no_crash __________________________
+  + Exception Group Traceback (most recent call last):
+  |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 107, in test_delivery_eta_no_crash
+  |     @given(st.text() | st.none())
+  |                    ^^^
+  | ExceptionGroup: Hypothesis found 2 distinct failures. (2 sub-exceptions)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 110, in test_delivery_eta_no_crash
+    |     delivery_eta(s)
+    |     ~~~~~~~~~~~~^^^
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/food_delivery.py", line 9, in delivery_eta
+    |     return int(15 + float(distance_km) * 4)
+    |                     ~~~~~^^^^^^^^^^^^^
+    | ValueError: could not convert string to float: ''
+    | 
+    | During handling of the above exception, another exception occurred:
+    | 
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 112, in test_delivery_eta_no_crash
+    |     assert False, f"delivery_eta crashed with: {e!r}"
+    | AssertionError: delivery_eta crashed with: ValueError("could not convert string to float: ''")
+    | assert False
+    | Failing test case: test_delivery_eta_no_crash(
+    |     s='',
+    | )
+    +---------------- 2 ----------------
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 110, in test_delivery_eta_no_crash
+    |     delivery_eta(s)
+    |     ~~~~~~~~~~~~^^^
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/food_delivery.py", line 9, in delivery_eta
+    |     return int(15 + float(distance_km) * 4)
+    |                     ~~~~~^^^^^^^^^^^^^
+    | TypeError: float() argument must be a string or a real number, not 'NoneType'
+    | 
+    | During handling of the above exception, another exception occurred:
+    | 
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 112, in test_delivery_eta_no_crash
+    |     assert False, f"delivery_eta crashed with: {e!r}"
+    | AssertionError: delivery_eta crashed with: TypeError("float() argument must be a string or a real number, not 'NoneType'")
+    | assert False
+    | Failing test case: test_delivery_eta_no_crash(
+    |     s=None,
+    | )
+    +------------------------------------
+______________________ test_delivery_eta_result_in_range _______________________
+  + Exception Group Traceback (most recent call last):
+  |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 116, in test_delivery_eta_result_in_range
+  |     @given(junk | distance_like)
+  |                    ^^^
+  |   File "/Users/aadi/Desktop/SE lab 7/.venv/lib/python3.15/site-packages/hypothesis/core.py", line 1730, in _raise_to_user
+  |     raise the_error_hypothesis_found
+  | ExceptionGroup: Hypothesis found 3 distinct failures in explicit examples. (3 sub-exceptions)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 124, in test_delivery_eta_result_in_range
+    |     eta = delivery_eta(d)
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/food_delivery.py", line 9, in delivery_eta
+    |     return int(15 + float(distance_km) * 4)
+    | ValueError: cannot convert float NaN to integer
+    | 
+    | During handling of the above exception, another exception occurred:
+    | 
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 126, in test_delivery_eta_result_in_range
+    |     assert False, f"delivery_eta crashed with: {e!r}"
+    | AssertionError: delivery_eta crashed with: ValueError('cannot convert float NaN to integer')
+    | assert False
+    | (note: 1 other explicit example also failed with this error; use Verbosity.verbose to view)
+    | Failing explicit example: test_delivery_eta_result_in_range(
+    |     d='nan',
+    | )
+    +---------------- 2 ----------------
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 124, in test_delivery_eta_result_in_range
+    |     eta = delivery_eta(d)
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/food_delivery.py", line 9, in delivery_eta
+    |     return int(15 + float(distance_km) * 4)
+    | OverflowError: cannot convert float infinity to integer
+    | 
+    | During handling of the above exception, another exception occurred:
+    | 
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 126, in test_delivery_eta_result_in_range
+    |     assert False, f"delivery_eta crashed with: {e!r}"
+    | AssertionError: delivery_eta crashed with: OverflowError('cannot convert float infinity to integer')
+    | assert False
+    | (note: 1 other explicit example also failed with this error; use Verbosity.verbose to view)
+    | Failing explicit example: test_delivery_eta_result_in_range(
+    |     d='inf',
+    | )
+    +---------------- 3 ----------------
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 127, in test_delivery_eta_result_in_range
+    |     assert eta is None or (
+    |         type(eta) is int and 15 < eta <= 15 + 4 * MAX_DISTANCE_KM
+    |     ), f"impossible ETA {eta!r} for input {d!r}"
+    | AssertionError: impossible ETA -5 for input '-5'
+    | assert (-5 is None or (<class 'int'> is int and 15 < -5))
+    |  +  where <class 'int'> = type(-5)
+    | Failing explicit example: test_delivery_eta_result_in_range(
+    |     d='-5',
+    | )
+    +------------------------------------
+_________________ test_delivery_eta_correct_for_valid_distance _________________
+
+    @FUZZ
+>   @given(distances)
+                   ^^^
+
+test_food_delivery.py:136: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+d = 1.125
+
+    @FUZZ
+    @given(distances)
+    def test_delivery_eta_correct_for_valid_distance(d):
+        expected = math.ceil(15 + d * 4)
+>       assert delivery_eta(d) == expected
+E       assert 19 == 20
+E        +  where 19 = delivery_eta(1.125)
+E       Failing test case: test_delivery_eta_correct_for_valid_distance(
+E           d=1.125,
+E       )
+
+test_food_delivery.py:139: AssertionError
+________________________ test_coupon_discount_no_crash _________________________
+  + Exception Group Traceback (most recent call last):
+  |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 155, in test_coupon_discount_no_crash
+  |     @given(st.text() | st.none())
+  |                    ^^^
+  | ExceptionGroup: Hypothesis found 3 distinct failures. (3 sub-exceptions)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 158, in test_coupon_discount_no_crash
+    |     coupon_discount(s)
+    |     ~~~~~~~~~~~~~~~^^^
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/food_delivery.py", line 12, in coupon_discount
+    |     return int(code.upper().split('SAVE')[1])
+    | ValueError: invalid literal for int() with base 10: ''
+    | 
+    | During handling of the above exception, another exception occurred:
+    | 
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 160, in test_coupon_discount_no_crash
+    |     assert False, f"coupon_discount crashed with: {e!r}"
+    | AssertionError: coupon_discount crashed with: ValueError("invalid literal for int() with base 10: ''")
+    | assert False
+    | Failing test case: test_coupon_discount_no_crash(
+    |     s='SAVE',
+    | )
+    +---------------- 2 ----------------
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 158, in test_coupon_discount_no_crash
+    |     coupon_discount(s)
+    |     ~~~~~~~~~~~~~~~^^^
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/food_delivery.py", line 12, in coupon_discount
+    |     return int(code.upper().split('SAVE')[1])
+    |                ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+    | IndexError: list index out of range
+    | 
+    | During handling of the above exception, another exception occurred:
+    | 
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 160, in test_coupon_discount_no_crash
+    |     assert False, f"coupon_discount crashed with: {e!r}"
+    | AssertionError: coupon_discount crashed with: IndexError('list index out of range')
+    | assert False
+    | Failing test case: test_coupon_discount_no_crash(
+    |     s='',
+    | )
+    +---------------- 3 ----------------
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 158, in test_coupon_discount_no_crash
+    |     coupon_discount(s)
+    |     ~~~~~~~~~~~~~~~^^^
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/food_delivery.py", line 12, in coupon_discount
+    |     return int(code.upper().split('SAVE')[1])
+    |                ^^^^^^^^^^
+    | AttributeError: 'NoneType' object has no attribute 'upper'
+    | 
+    | During handling of the above exception, another exception occurred:
+    | 
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 160, in test_coupon_discount_no_crash
+    |     assert False, f"coupon_discount crashed with: {e!r}"
+    | AssertionError: coupon_discount crashed with: AttributeError("'NoneType' object has no attribute 'upper'")
+    | assert False
+    | Failing test case: test_coupon_discount_no_crash(
+    |     s=None,
+    | )
+    +------------------------------------
+_____________________ test_coupon_discount_result_in_range _____________________
+  + Exception Group Traceback (most recent call last):
+  |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 164, in test_coupon_discount_result_in_range
+  |     @given(junk | coupon_like)
+  |                    ^^^
+  |   File "/Users/aadi/Desktop/SE lab 7/.venv/lib/python3.15/site-packages/hypothesis/core.py", line 1730, in _raise_to_user
+  |     raise the_error_hypothesis_found
+  | ExceptionGroup: Hypothesis found 2 distinct failures in explicit examples. (2 sub-exceptions)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 171, in test_coupon_discount_result_in_range
+    |     discount = coupon_discount(code)
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/food_delivery.py", line 12, in coupon_discount
+    |     return int(code.upper().split('SAVE')[1])
+    |                ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+    | IndexError: list index out of range
+    | 
+    | During handling of the above exception, another exception occurred:
+    | 
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 173, in test_coupon_discount_result_in_range
+    |     assert False, f"coupon_discount crashed with: {e!r}"
+    | AssertionError: coupon_discount crashed with: IndexError('list index out of range')
+    | assert False
+    | Failing explicit example: test_coupon_discount_result_in_range(
+    |     code='FREEDEL',
+    | )
+    +---------------- 2 ----------------
+    | Traceback (most recent call last):
+    |   File "/Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7/test_food_delivery.py", line 174, in test_coupon_discount_result_in_range
+    |     assert type(discount) is int and 0 <= discount <= MAX_DISCOUNT, (
+    |         f"discount {discount!r} for code {code!r}"
+    |     )
+    | AssertionError: discount -50 for code 'SAVE-50'
+    | assert (<class 'int'> is int and 0 <= -50)
+    |  +  where <class 'int'> = type(-50)
+    | (note: 1 other explicit example also failed with this error; use Verbosity.verbose to view)
+    | Failing explicit example: test_coupon_discount_result_in_range(
+    |     code='SAVE-50',
+    | )
+    +------------------------------------
+=========================== short test summary info ============================
+FAILED test_food_delivery.py::test_parse_order_no_crash - ExceptionGroup: Hyp...
+FAILED test_food_delivery.py::test_parse_order_returns_valid_order - Exceptio...
+FAILED test_food_delivery.py::test_parse_order_merges_duplicate_items - Asser...
+FAILED test_food_delivery.py::test_delivery_eta_no_crash - ExceptionGroup: Hy...
+FAILED test_food_delivery.py::test_delivery_eta_result_in_range - ExceptionGr...
+FAILED test_food_delivery.py::test_delivery_eta_correct_for_valid_distance - ...
+FAILED test_food_delivery.py::test_coupon_discount_no_crash - ExceptionGroup:...
+FAILED test_food_delivery.py::test_coupon_discount_result_in_range - Exceptio...
+========================= 8 failed, 3 passed in 1.07s ==========================

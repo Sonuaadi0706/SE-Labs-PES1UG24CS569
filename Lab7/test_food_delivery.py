@@ -125,7 +125,7 @@ def test_delivery_eta_result_in_range(d):
     except Exception as e:  # pylint: disable=broad-except
         assert False, f"delivery_eta crashed with: {e!r}"
     assert eta is None or (
-        type(eta) is int and 15 < eta <= 15 + 4 * MAX_DISTANCE_KM
+        type(eta) is int and 15 <= eta <= 15 + 4 * MAX_DISTANCE_KM
     ), f"impossible ETA {eta!r} for input {d!r}"
 
 

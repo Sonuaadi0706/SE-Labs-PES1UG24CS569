@@ -1,0 +1,20 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.15.0, pytest-9.2.0, pluggy-1.7.0 -- /Users/aadi/Desktop/SE lab 7/.venv/bin/python
+hypothesis profile 'default'
+rootdir: /Users/aadi/Desktop/SE lab 7/SE-Labs-PES1UG24CS569/Lab7
+plugins: hypothesis-6.170.15
+collecting ... collected 11 items
+
+test_food_delivery.py::test_parse_order_no_crash PASSED                  [  9%]
+test_food_delivery.py::test_parse_order_returns_valid_order PASSED       [ 18%]
+test_food_delivery.py::test_parse_order_round_trip PASSED                [ 27%]
+test_food_delivery.py::test_parse_order_merges_duplicate_items PASSED    [ 36%]
+test_food_delivery.py::test_delivery_eta_no_crash PASSED                 [ 45%]
+test_food_delivery.py::test_delivery_eta_result_in_range PASSED          [ 54%]
+test_food_delivery.py::test_delivery_eta_correct_for_valid_distance PASSED [ 63%]
+test_food_delivery.py::test_delivery_eta_never_shorter_for_longer_trip PASSED [ 72%]
+test_food_delivery.py::test_coupon_discount_no_crash PASSED              [ 81%]
+test_food_delivery.py::test_coupon_discount_result_in_range PASSED       [ 90%]
+test_food_delivery.py::test_coupon_discount_valid_codes PASSED           [100%]
+
+============================== 11 passed in 1.78s ==============================
